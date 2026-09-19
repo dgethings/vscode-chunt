@@ -1,0 +1,101 @@
+# Publish platform-specific VSIXs to the VS Code Marketplace and Open VSX.
+#
+# Each matrix job fetches the pinned chunt release binary for its target,
+# verifies it against goreleaser's checksums file, and packages a VSIX stamped
+# with that target (`vsce package --target`). The publish job then uploads all
+# four VSIXs in one go — both registries pick the right asset per user OS.
+#
+# Only platform VSIXs are published (no universal build): chunt does not build
+# for Windows, so Windows users should see "not available", not a broken
+# extension.
+#
+# Secrets required:
+#   VS_MARKETPLACE_TOKEN — PAT for the dgethings publisher (Marketplace)
+#   OPEN_VSX_TOKEN       — token for the dgethings namespace (Open VSX)
+#
+# Keep CHUNT_VERSION in sync with scripts/fetch-chunt.sh.
+name: Publish
+
+on:
+  push:
+    tags:
+      - "v*"
+
+env:
+  CHUNT_VERSION: v0.14.1
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - vsce_target: darwin-arm64
+            goos: darwin
+            goarch: arm64
+          - vsce_target: darwin-x64
+            goos: darwin
+            goarch: amd64
+          - vsce_target: linux-arm64
+            goos: linux
+            goarch: arm64
+          - vsce_target: linux-x64
+            goos: linux
+            goarch: amd64
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm ci
+
+      - name: Fetch chunt binary
+        env:
+          CHUNT_TARGET_OS: ${{ matrix.goos }}
+          CHUNT_TARGET_ARCH: ${{ matrix.goarch }}
+        run: |
+          VER="${CHUNT_VERSION#v}"
+          ASSET="chunt_${VER}_${CHUNT_TARGET_OS}_${CHUNT_TARGET_ARCH}"
+          BASE="https://github.com/dgethings/chunt/releases/download/${CHUNT_VERSION}"
+          mkdir -p bin
+          curl -fsSL -o bin/chunt "${BASE}/${ASSET}"
+          curl -fsSL -o /tmp/checksums.txt "${BASE}/chunt_${VER}_checksums.txt"
+          expected="$(grep " ${ASSET}$" /tmp/checksums.txt | awk '{print $1}')"
+          actual="$(sha256sum bin/chunt | awk '{print $1}')"
+          [ -n "$expected" ] || { echo "no checksum for ${ASSET}" >&2; exit 1; }
+          if [ "$expected" != "$actual" ]; then
+            echo "checksum mismatch" >&2
+            exit 1
+          fi
+          chmod +x bin/chunt
+
+      - name: Package VSIX
+        run: >-
+          npx @vscode/vsce package --no-dependencies
+          --target ${{ matrix.vsce_target }}
+          -o chunt-${{ matrix.vsce_target }}.vsix
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: vsix-${{ matrix.vsce_target }}
+          path: chunt-${{ matrix.vsce_target }}.vsix
+
+  publish:
+    needs: package
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          pattern: vsix-*
+          merge-multiple: true
+
+      - name: Publish to VS Code Marketplace
+        run: >-
+          npx @vscode/vsce publish --no-dependencies
+          --packagePath dist/*.vsix
+          -p ${{ secrets.VS_MARKETPLACE_TOKEN }}
+
+      - name: Publish to Open VSX
+        run: npx ovsx publish dist/*.vsix -p ${{ secrets.OPEN_VSX_TOKEN }}

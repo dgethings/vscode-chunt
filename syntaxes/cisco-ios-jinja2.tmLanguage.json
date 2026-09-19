@@ -1,0 +1,126 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Cisco IOS Jinja2",
+  "scopeName": "source.ios.j2",
+  "patterns": [
+    { "include": "#jinja-comment" },
+    { "include": "#jinja-statement" },
+    { "include": "#jinja-output" },
+    { "include": "#ios-comment" },
+    { "include": "#section-header" },
+    { "include": "#ios-keyword" }
+  ],
+  "repository": {
+    "ios-comment": {
+      "match": "^!.*$",
+      "name": "comment.line.number-sign.ios"
+    },
+    "section-header": {
+      "patterns": [
+        {
+          "match": "(?i)^\\s*(interface)\\s+([A-Za-z][\\w/.:-]*)",
+          "captures": {
+            "1": { "name": "entity.name.type.ios" },
+            "2": { "name": "entity.name.tag.ios" }
+          }
+        },
+        {
+          "match": "(?i)^\\s*(router)\\s+(bgp|ospf|eigrp|isis|rip)\\b",
+          "captures": {
+            "1": { "name": "entity.name.type.ios" },
+            "2": { "name": "entity.name.type.ios" }
+          }
+        },
+        {
+          "match": "(?i)^\\s*(ip access-list (?:standard|extended)|access-list|route-map|class-map|policy-map)\\s+(?:[\\w-]+\\s+)?([\\w-]+)",
+          "captures": {
+            "1": { "name": "entity.name.type.ios" },
+            "2": { "name": "entity.name.tag.ios" }
+          }
+        }
+      ]
+    },
+    "ios-keyword": {
+      "match": "(?i)^\\s*(no\\s+)?(ip address|ip access-group|ip policy|snmp-server|tacacs-server|hw-module|scheduler|address-family|passive-interface|exec-timeout|access-class|router-id|redistribute|description|hostname|shutdown|neighbor|network|transport|password|version|service|duplex|mtu|speed|permit|deny|login|match|class)\\b",
+      "captures": {
+        "1": { "name": "keyword.operator.negation.ios" },
+        "2": { "name": "keyword.other.ios" }
+      }
+    },
+    "jinja-comment": {
+      "begin": "\\{#",
+      "end": "#\\}",
+      "name": "comment.block.jinja",
+      "patterns": [
+        {
+          "match": "#\\}",
+          "name": "punctuation.definition.comment.end.jinja"
+        }
+      ]
+    },
+    "jinja-statement": {
+      "name": "meta.statement.jinja",
+      "begin": "\\{%-?",
+      "end": "-?%\\}",
+      "beginCaptures": {
+        "0": { "name": "punctuation.definition.statement.begin.jinja" }
+      },
+      "endCaptures": {
+        "0": { "name": "punctuation.definition.statement.end.jinja" }
+      },
+      "patterns": [
+        { "include": "#jinja-expression-body" },
+        {
+          "match": "\\b(for|endfor|if|elif|else|endif|set|endset|block|endblock|macro|endmacro|with|endwith|include|from|import|as|extends|call|endcall|filter|endfilter|raw|endraw|do|ignore\\s+missing)\\b",
+          "name": "keyword.control.jinja"
+        }
+      ]
+    },
+    "jinja-output": {
+      "name": "meta.template-expression.jinja",
+      "begin": "\\{\\{-?",
+      "end": "-?\\}\\}",
+      "beginCaptures": {
+        "0": { "name": "punctuation.definition.template-expression.begin.jinja" }
+      },
+      "endCaptures": {
+        "0": { "name": "punctuation.definition.template-expression.end.jinja" }
+      },
+      "patterns": [
+        { "include": "#jinja-expression-body" }
+      ]
+    },
+    "jinja-expression-body": {
+      "patterns": [
+        {
+          "match": "\"(?:[^\"\\\\]|\\\\.)*\"",
+          "name": "string.quoted.double.jinja"
+        },
+        {
+          "match": "'(?:[^'\\\\]|\\\\.)*'",
+          "name": "string.quoted.single.jinja"
+        },
+        {
+          "match": "\\b(true|false|none)\\b",
+          "name": "constant.language.jinja"
+        },
+        {
+          "match": "\\b\\d+(\\.\\d+)?\\b",
+          "name": "constant.numeric.jinja"
+        },
+        {
+          "match": "\\|",
+          "name": "keyword.operator.pipe.jinja"
+        },
+        {
+          "match": "==|!=|<=|>=|<|>|\\+|-|\\*|/|~",
+          "name": "keyword.operator.jinja"
+        },
+        {
+          "match": "\\b[a-zA-Z_][\\w.]*\\b",
+          "name": "variable.other.jinja"
+        }
+      ]
+    }
+  }
+}
