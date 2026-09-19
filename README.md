@@ -25,8 +25,8 @@ Published to the [VS Code Marketplace](https://marketplace.visualstudio.com/) an
 | macOS (Intel) | `darwin-x64` |
 | Linux (ARM64) | `linux-arm64` |
 | Linux (x86-64) | `linux-x64` |
-
-Windows is not supported (chunt does not build for it).
+| Windows (ARM64) | `win32-arm64` |
+| Windows (x86-64) | `win32-x64` |
 
 The chunt server binary is **bundled inside the VSIX** — no download happens at runtime, and the server version always matches the extension release that was tested against it.
 
@@ -67,7 +67,7 @@ code --install-extension chunt.vsix
 
 1. Bump `version` in `package.json`, update `CHANGELOG.md`.
 2. Bump `CHUNT_VERSION` in `scripts/fetch-chunt.sh` **and** `.github/workflows/publish.yml` to the chunt release to bundle.
-3. Tag `vX.Y.Z` and push — the [publish workflow](.github/workflows/publish.yml) fetches the pinned chunt binaries (checksum-verified), builds the four platform VSIXs, and publishes to Marketplace + Open VSX.
+3. Tag `vX.Y.Z` and push — the [publish workflow](.github/workflows/publish.yml) fetches the pinned chunt binaries (checksum-verified), builds the six platform VSIXs, and publishes to Marketplace + Open VSX.
 
 ### Relationship to chunt
 

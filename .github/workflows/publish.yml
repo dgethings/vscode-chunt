@@ -3,17 +3,17 @@
 # Each matrix job fetches the pinned chunt release binary for its target,
 # verifies it against goreleaser's checksums file, and packages a VSIX stamped
 # with that target (`vsce package --target`). The publish job then uploads all
-# four VSIXs in one go — both registries pick the right asset per user OS.
+# six VSIXs in one go — both registries pick the right asset per user OS.
 #
-# Only platform VSIXs are published (no universal build): chunt does not build
-# for Windows, so Windows users should see "not available", not a broken
-# extension.
+# Windows targets bundle the binary as bin/chunt.exe (the extension resolves
+# that name on win32); other targets bundle bin/chunt.
 #
 # Secrets required:
 #   VS_MARKETPLACE_TOKEN — PAT for the dgethings publisher (Marketplace)
 #   OPEN_VSX_TOKEN       — token for the dgethings namespace (Open VSX)
 #
-# Keep CHUNT_VERSION in sync with scripts/fetch-chunt.sh.
+# Keep CHUNT_VERSION in sync with scripts/fetch-chunt.sh, and bump it only to
+# a chunt release that ships windows binaries.
 name: Publish
 
 on:
@@ -22,7 +22,7 @@ on:
       - "v*"
 
 env:
-  CHUNT_VERSION: v0.14.1
+  CHUNT_VERSION: v0.15.0
 
 jobs:
   package:
@@ -42,6 +42,12 @@ jobs:
           - vsce_target: linux-x64
             goos: linux
             goarch: amd64
+          - vsce_target: win32-arm64
+            goos: windows
+            goarch: arm64
+          - vsce_target: win32-x64
+            goos: windows
+            goarch: amd64
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -55,19 +61,21 @@ jobs:
           CHUNT_TARGET_ARCH: ${{ matrix.goarch }}
         run: |
           VER="${CHUNT_VERSION#v}"
-          ASSET="chunt_${VER}_${CHUNT_TARGET_OS}_${CHUNT_TARGET_ARCH}"
+          EXT=""
+          if [ "${CHUNT_TARGET_OS}" = windows ]; then EXT=".exe"; fi
+          ASSET="chunt_${VER}_${CHUNT_TARGET_OS}_${CHUNT_TARGET_ARCH}${EXT}"
           BASE="https://github.com/dgethings/chunt/releases/download/${CHUNT_VERSION}"
           mkdir -p bin
-          curl -fsSL -o bin/chunt "${BASE}/${ASSET}"
+          curl -fsSL -o "bin/chunt${EXT}" "${BASE}/${ASSET}"
           curl -fsSL -o /tmp/checksums.txt "${BASE}/chunt_${VER}_checksums.txt"
           expected="$(grep " ${ASSET}$" /tmp/checksums.txt | awk '{print $1}')"
-          actual="$(sha256sum bin/chunt | awk '{print $1}')"
+          actual="$(sha256sum "bin/chunt${EXT}" | awk '{print $1}')"
           [ -n "$expected" ] || { echo "no checksum for ${ASSET}" >&2; exit 1; }
           if [ "$expected" != "$actual" ]; then
             echo "checksum mismatch" >&2
             exit 1
           fi
-          chmod +x bin/chunt
+          chmod +x "bin/chunt${EXT}"
 
       - name: Package VSIX
         run: >-
