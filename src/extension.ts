@@ -19,7 +19,6 @@ import {
 	LanguageClient,
 	LanguageClientOptions,
 	ServerOptions,
-	TransportKind,
 } from "vscode-languageclient/node";
 import { getChuntExecutable } from "./util/executable";
 
@@ -36,10 +35,16 @@ export async function activate(context: vscode.ExtensionContext) {
 		.getConfiguration("chunt")
 		.get<string>("logLevel", "info");
 
+	// NOTE: do NOT set `transport: TransportKind.stdio` here. For a plain
+	// (non-Node) Executable, vscode-languageclient treats an explicit stdio
+	// transport as a launcher convention and appends a literal `--stdio` flag
+	// to the server args (node/main.js: `if (transport === TransportKind.stdio)
+	// args.push("--stdio")`). chunt's cobra CLI rejects that flag and exits,
+	// killing the server on every startup. With the field omitted, the client
+	// defaults to stdio framing without adding any flag.
 	const executable: Executable = {
 		command: chuntExecutable,
 		args: ["serve", "--log-level", logLevel],
-		transport: TransportKind.stdio,
 	};
 
 	const serverOptions: ServerOptions = {
