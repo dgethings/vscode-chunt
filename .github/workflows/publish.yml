@@ -9,8 +9,14 @@
 # that name on win32); other targets bundle bin/chunt.
 #
 # Secrets required:
-#   VS_MARKETPLACE_TOKEN — PAT for the dgethings publisher (Marketplace)
 #   OPEN_VSX_TOKEN       — token for the dgethings namespace (Open VSX)
+#
+# The Marketplace side uses Trusted Publishing (OIDC): no PAT secret. The
+# policy below must match a Trusted Publishing policy configured on the
+# dgethings publisher (Marketplace publisher management → Trusted
+# Publishing): owner=dgethings, repo=vscode-chunt, workflow=publish.yml,
+# environment empty. Global PATs are retired Dec 1, 2026, so do not go back
+# to a VS_MARKETPLACE_TOKEN secret.
 #
 # Keep CHUNT_VERSION in sync with scripts/fetch-chunt.sh, and bump it only to
 # a chunt release that ships windows binaries.
@@ -91,6 +97,9 @@ jobs:
   publish:
     needs: package
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
@@ -102,8 +111,8 @@ jobs:
       - name: Publish to VS Code Marketplace
         run: >-
           npx @vscode/vsce publish --no-dependencies
+          --oidc
           --packagePath dist/*.vsix
-          -p ${{ secrets.VS_MARKETPLACE_TOKEN }}
 
       - name: Publish to Open VSX
         run: npx ovsx publish dist/*.vsix -p ${{ secrets.OPEN_VSX_TOKEN }}
