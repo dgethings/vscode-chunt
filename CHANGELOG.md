@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.2] - 2026-10-30
+
+### Fixed
+
+- CI: Open VSX publish passed all six VSIXs as positional arguments, but `ovsx publish` accepts a single extension — publish via `--packagePath` instead.
+
 ## [0.1.1] - 2026-10-29
 
 ### Changed
@@ -23,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `chunt.path` and `chunt.logLevel` settings.
 - Platform-specific VSIX builds (`darwin-arm64`, `darwin-x64`, `linux-arm64`, `linux-x64`) bundling the pinned chunt release binary (v0.15.0), assembled in CI with checksum verification.
 
-[Unreleased]: https://github.com/dgethings/vscode-chunt/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/dgethings/vscode-chunt/compare/v0.1.2...HEAD
+[0.1.2]: https://github.com/dgethings/vscode-chunt/releases/tag/v0.1.2
 [0.1.1]: https://github.com/dgethings/vscode-chunt/releases/tag/v0.1.1
 [0.1.0]: https://github.com/dgethings/vscode-chunt/releases/tag/v0.1.0

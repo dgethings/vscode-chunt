@@ -2,7 +2,7 @@
   "name": "chunt",
   "displayName": "chunt",
   "description": "Language support for Cisco IOS Jinja2 configuration templates (.ios.j2) via the chunt language server",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "license": "MIT",
   "publisher": "dgethings",
   "repository": {
