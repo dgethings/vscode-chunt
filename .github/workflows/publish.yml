@@ -8,15 +8,19 @@
 # Windows targets bundle the binary as bin/chunt.exe (the extension resolves
 # that name on win32); other targets bundle bin/chunt.
 #
-# Secrets required:
-#   OPEN_VSX_TOKEN       — token for the dgethings namespace (Open VSX)
+# Both registries publish via Trusted Publishing (OIDC): no PAT secrets.
 #
-# The Marketplace side uses Trusted Publishing (OIDC): no PAT secret. The
-# policy below must match a Trusted Publishing policy configured on the
-# dgethings publisher (Marketplace publisher management → Trusted
-# Publishing): owner=dgethings, repo=vscode-chunt, workflow=publish.yml,
-# environment empty. Global PATs are retired Dec 1, 2026, so do not go back
-# to a VS_MARKETPLACE_TOKEN secret.
+# Marketplace policy (publisher management → Trusted Publishing on the
+# dgethings publisher): owner=dgethings, repo=vscode-chunt,
+# workflow=publish.yml, environment empty. Global PATs are retired Dec 1,
+# 2026, so do not go back to a VS_MARKETPLACE_TOKEN secret.
+#
+# Open VSX registration (open-vsx.org → Settings → Trusted Publishers):
+# owner=dgethings, repo=vscode-chunt, workflow=publish.yml, environment
+# empty. Open VSX only accepts a registration for an extension that already
+# exists with one active version, so the first version had to be published
+# with a PAT; every later version goes through OIDC. The publisher field
+# must match the namespace case exactly (dgethings).
 #
 # Keep CHUNT_VERSION in sync with scripts/fetch-chunt.sh, and bump it only to
 # a chunt release that ships windows binaries.
@@ -115,4 +119,4 @@ jobs:
           --packagePath dist/*.vsix
 
       - name: Publish to Open VSX
-        run: npx ovsx publish dist/*.vsix -p ${{ secrets.OPEN_VSX_TOKEN }}
+        run: npx ovsx publish --trusted-publishing dist/*.vsix
