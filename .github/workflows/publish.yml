@@ -123,4 +123,6 @@ jobs:
           --packagePath dist/*.vsix
 
       - name: Publish to Open VSX
-        run: npx ovsx publish --trusted-publishing dist/*.vsix
+        run: >-
+          npx ovsx publish --trusted-publishing
+          --packagePath dist/*.vsix
