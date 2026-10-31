@@ -32,7 +32,7 @@ on:
       - "v*"
 
 env:
-  CHUNT_VERSION: v0.15.0
+  CHUNT_VERSION: v0.15.1
 
 jobs:
   package:

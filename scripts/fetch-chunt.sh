@@ -12,7 +12,7 @@
 # Keep CHUNT_VERSION in sync with .github/workflows/publish.yml.
 set -euo pipefail
 
-CHUNT_VERSION="${CHUNT_VERSION:-v0.15.0}"
+CHUNT_VERSION="${CHUNT_VERSION:-v0.15.1}"
 CHUNT_REPO="${CHUNT_REPO:-dgethings/chunt}"
 
 # Map this machine onto goreleaser's os/arch naming.
