@@ -12,3 +12,4 @@ webpack.config.js
 **/.vscode-test.*
 scripts/**
 .github/**
+images/icon.svg
