@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.5] - 2026-11-15
+
+### Changed
+
+- Bundle chunt v0.16.0: new `invalid-mask` diagnostic flags values that are not subnet masks in snippet-typed argument slots (e.g. `ip address 10.0.0.1 wibble` → `expected a subnet mask (e.g. 255.255.255.0), got "wibble"`).
+
 ## [0.1.4] - 2026-10-31
 
 ### Added
