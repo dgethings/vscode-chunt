@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.6] - 2026-11-15
+
+### Changed
+
+- Bundle chunt v0.17.0: typed argument-value diagnostics (IPv6 addresses/prefixes, MAC addresses, AS numbers, VLAN IDs, wildcard masks, durations, curated IPv4 slots) and new repeated/redefined-command Warnings — identical command lines in one section and last-wins scalar redefinitions (hostname replacement, multiple primary `ip address` per interface).
+
 ## [0.1.5] - 2026-11-15
 
 ### Changed
