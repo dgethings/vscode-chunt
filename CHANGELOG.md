@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.7] - 2026-11-17
+
+### Changed
+
+- Bundle chunt v0.18.0: workspace mode — every `*.ios.j2` file in the same directory is analyzed as one logical device config. Sections may be split across files (the same section identity merges silently), conflicting scalars across files are Errors (e.g. two different `router-id` values under the same `router bgp` section in different files, with a companion Warning on the first definition), and references (ACLs, route-maps, policy-maps…) resolve across the whole directory. `chunt check` also accepts a directory.
+
 ## [0.1.6] - 2026-11-15
 
 ### Changed
